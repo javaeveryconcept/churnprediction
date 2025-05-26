@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Telco Churn Dashboard</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Telco Customer Churn Dataset</h1>
+        <p>Focused customer retention programs</p>
+    </div>
+
+    <div class="controls">
+        <!-- Search + Page Size Form -->
+        <form method="get" action="/index" class="search-form">
+            <label>
+                <input type="text" name="search" placeholder="Search by CustomerID" th:value="${search}"/>
+            </label>
+            <button type="submit">Search</button>
+            <input type="hidden" name="page" value="0"/>
+            <label>Show
+                <select name="size" onchange="this.form.submit()">
+                    <option th:each="s : ${pageSizes}"
+                            th:value="${s}"
+                            th:text="${s}"
+                            th:selected="${s == pageSize}">
+                    </option>
+                </select> entries
+            </label>
+        </form>
+
+        <div style="display: flex; justify-content: flex-end; gap: 15px; align-items: center; margin-bottom: 20px;">
+
+            <!-- Refresh Button -->
+            <form method="get" action="/index" class="refresh-form">
+                <button type="submit" style="padding: 6px 12px;">🔄 Refresh</button>
+            </form>
+
+            <!-- Download Button with Spinner -->
+            <div style="position: relative;">
+                <form method="get" action="/download-report" onsubmit="showLoadingMessage()">
+                    <button type="submit" style="padding: 6px 12px;">⬇️ Download Predict Report (CSV)</button>
+                </form>
+
+                <!-- Spinner Overlay -->
+                <div id="loading-message" style="display: none; position: absolute; top: 110%; left: 0; white-space: nowrap; color: blue; font-weight: bold;">
+                    <img src="/images/spinner.gif" alt="Loading..." style="height: 24px; vertical-align: middle; margin-right: 6px;"/>
+                    Please wait...
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <p style="color:green">Total Records: <span th:text="${totalRecords}"></span></p>
+
+    <!-- Data Table -->
+    <table>
+        <thead>
+        <tr>
+            <th>S. No.</th>
+            <th>CustomerID</th>
+            <th>Gender</th>
+            <th>SeniorCitizen</th>
+            <th>Partner</th>
+            <th>Dependents</th>
+            <th>Tenure</th>
+            <th>PhoneService</th>
+            <th>InternetService</th>
+            <th>MonthlyCharges</th>
+            <th>TotalCharges</th>
+            <th>Predict</th>
+            <th>Probability</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row, iterStat : ${data}">
+            <td th:text="${iterStat.index + 1}"></td>
+            <td th:text="${row['customerID']}"></td>
+            <td th:text="${row['gender']}"></td>
+            <td th:text="${row['SeniorCitizen'] == '1' ? 'Yes' : 'No'}"></td>
+            <td th:text="${row['Partner']}"></td>
+            <td th:text="${row['Dependents']}"></td>
+            <td th:text="${row['tenure']}"></td>
+            <td th:text="${row['PhoneService']}"></td>
+            <td th:text="${row['InternetService']}"></td>
+            <td th:text="${row['MonthlyCharges']}"></td>
+            <td th:text="${row['TotalCharges']}"></td>
+            <td>
+                <button type="button"
+                        class="predict-btn"
+                        th:attr="data-customerid=${row['customerID']}, data-rowid=${iterStat.index}">
+                    Predict
+                </button>
+            </td>
+            <td><span th:attr="id='result-' + ${iterStat.index}">--</span></td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    <!-- Pagination -->
+    <div class="pagination">
+        <span th:if="${currentPage > 0}">
+            <a th:href="@{/index(page=${currentPage - 1}, size=${pageSize}, search=${search})}">Previous</a>
+        </span>
+
+        <span th:each="i : ${paginationRange}">
+            <span th:if="${i == -1 || i == -2}">...</span>
+            <a th:if="${i >= 0}"
+               th:href="@{/index(page=${i}, size=${pageSize}, search=${search})}"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active' : ''">
+            </a>
+        </span>
+
+        <span th:if="${currentPage + 1 < totalPages}">
+            <a th:href="@{/index(page=${currentPage + 1}, size=${pageSize}, search=${search})}">Next</a>
+        </span>
+    </div>
+
+    <br> <br>
+</div>
+</body>
+</html>
