@@ -37,12 +37,10 @@ public class TrainModel {
 
     public static void main(String[] args) throws Exception {
         // Step 0: Clean the CSV file
-        String originalFilePath = AiUtil.DATASET_PATH;
-        File cleanedCsv = cleanCsvFile(originalFilePath);
+        File cleanedCsv = cleanCsvFile();
 
         // Step 1: Define schema
-        //Schema inputSchema = DatavecUtility.buildInputSchema();
-        Schema inputSchema = new InferredSchema(originalFilePath).build();
+        Schema inputSchema = new InferredSchema(AiUtil.DATASET_PATH).build();
         System.out.println("Input Schema: " + inputSchema);
 
         // Step 2: Fix TotalCharges column before analysis
@@ -53,7 +51,7 @@ public class TrainModel {
         //Visualization
         DatavecUtility.htmlDataAnalysis(analysis);
         
-        // Step 4: Full TransformProcess including encoding & normalization
+        // Step 4: Full TransformProcess including encoding and normalization
         TransformProcess fullTransform = DatavecUtility.buildFullTransform(preProcess.getFinalSchema(), analysis);
         
         // Step 5: Apply final transform to get DataSet
@@ -118,9 +116,6 @@ public class TrainModel {
      * Saves the trained model (churn-model.zip)
      * Saves the full data transformation pipeline (transformProcess.json)
      * This lets you reuse the model and transformation later for prediction.
-     * @param model
-     * @param fullTransform
-     * @return
      */
     private static File saveModelAndTransformProcess(MultiLayerNetwork model,TransformProcess fullTransform) throws IOException {
         File modelFile = new File("churn-model.zip");
@@ -142,15 +137,13 @@ public class TrainModel {
 
     /**
      *   Cleans the CSV file by replacing empty TotalCharges with 0.0
-     * @return
-     * @throws IOException
      */
-    private static File cleanCsvFile(String originalFilePath) throws IOException {
+    private static File cleanCsvFile() throws IOException {
         File cleanedFile = new File(System.getProperty("user.dir"), "cleaned_telco.csv");
         if (cleanedFile.exists()) {
             cleanedFile.delete();
         }
-        try (BufferedReader reader = new BufferedReader(new FileReader(originalFilePath));
+        try (BufferedReader reader = new BufferedReader(new FileReader(AiUtil.DATASET_PATH));
              BufferedWriter writer = new BufferedWriter(new FileWriter(cleanedFile))) {
 
             String header = reader.readLine();

@@ -33,8 +33,6 @@ public class DeepLearning4JUtility {
      *  - Hidden layers: 32 → 16 neurons with ReLU activation
      *  - Output layer: 2 outputs (Yes/No churn) using Sigmoid + Binary Cross Entropy
      * Adam optimizer is used with learning rate 0.01.
-     * @param inputNum
-     * @return
      */
     private static MultiLayerConfiguration buildModelConfig(int inputNum) {
         return new NeuralNetConfiguration.Builder()

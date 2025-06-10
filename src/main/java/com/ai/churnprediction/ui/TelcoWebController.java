@@ -24,22 +24,6 @@ public class TelcoWebController {
     @Autowired
     private ChurnPrediction predictionService;
 
-    @PostMapping("/predict")
-    @ResponseBody
-    public String predict(@RequestParam String customerID) {
-        log.info("Predicting churn for customerID: {}", customerID);
-        Optional<Map<String, Object>> customer = predictionService.getFullData().stream()
-                .filter(row -> row.get("customerID").equals(customerID))
-                .findFirst();
-
-        if (customer.isEmpty()) return "Customer not found.";
-
-        double prob = predictionService.predictChurn(customer.get());
-        String label = prob >= 0.5 ? "Yes" : "No";
-
-        return String.format("Churn: %s (%.4f)", label, prob);
-    }
-
     @GetMapping("/index")
     public String index(Model model,
                         @RequestParam(name = "search", required = false) String search,
@@ -72,6 +56,22 @@ public class TelcoWebController {
         return "index";
     }
 
+    @PostMapping("/predict")
+    @ResponseBody
+    public String predict(@RequestParam String customerID) {
+        log.info("Predicting churn for customerID: {}", customerID);
+        Optional<Map<String, Object>> customer = predictionService.getFullData().stream()
+                .filter(row -> row.get("customerID").equals(customerID))
+                .findFirst();
+
+        if (customer.isEmpty()) return "Customer not found.";
+
+        double prob = predictionService.predictChurn(customer.get());
+        String label = prob >= 0.5 ? "Yes" : "No";
+
+        return String.format("Churn: %s (%.4f)", label, prob);
+    }
+
     @GetMapping("/download-report")
     public void downloadCsvReport(HttpServletResponse response) throws IOException {
         // Set response headers
@@ -80,6 +80,7 @@ public class TelcoWebController {
         // Loop through data with predictions (replace with your actual logic)
         predictionService.getAllPredictions(response); // create this service method
     }
+
 
     private List<Integer> getPaginationRange(int currentPage, int totalPages) {
         int start = Math.max(0, currentPage - 2);

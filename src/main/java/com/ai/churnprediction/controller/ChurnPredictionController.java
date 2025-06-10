@@ -1,6 +1,7 @@
 package com.ai.churnprediction.controller;
 
 import com.ai.churnprediction.service.ChurnPrediction;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,13 +12,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/churn")
+@AllArgsConstructor
 @Slf4j
 public class ChurnPredictionController {
     private final ChurnPrediction churnPredictionService;
-
-    public ChurnPredictionController(ChurnPrediction churnPredictionService) {
-        this.churnPredictionService = churnPredictionService;
-    }
 
     @PostMapping("/predict")
     public String predict(@RequestBody Map<String, Object> payload) {

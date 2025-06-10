@@ -71,11 +71,12 @@ public class DatavecUtility {
         RecordReader preReader = new CSVRecordReader(1, ',');
         preReader.initialize(new FileSplit(cleanedCsv));
         RecordReader preProcessedReader = new TransformProcessRecordReader(preReader, preProcess);
-        //Analyse the specified data - returns a DataAnalysis object with summary information about each column
+        //Analyze the specified data - returns a DataAnalysis object with summary information about each column
         return AnalyzeLocal.analyze(preProcess.getFinalSchema(), preProcessedReader);
     }
 
 
+    //Converting TotalCharges to double type
     public static TransformProcess simplifyTotalCharges(Schema schema) {
         return new TransformProcess.Builder(schema)
                 .conditionalReplaceValueTransform("TotalCharges", new Text("0"),
@@ -86,9 +87,9 @@ public class DatavecUtility {
     }
 
     /**
-     * This builds the final transformation pipeline, including:
+     * This builds the final transformation pipeline, including
      *  - Removing customerID
-     *  - Converting strings to one-hot encodings or integers
+     *  - Converting strings to one-hot encoding or integers
      *  - Normalize numeric values (tenure, MonthlyCharges, TotalCharges)
      * This turns raw CSV data into clean numeric vectors ready for training.
      */

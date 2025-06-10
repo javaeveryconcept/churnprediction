@@ -127,7 +127,6 @@ DeepLearning4j needs numerical input features, so:
 ```
 POST http://localhost:8080/api/predict
 Content-Type: application/json
-
 {
   "customerID": "0001",
   "gender": "Male",
@@ -156,8 +155,8 @@ Content-Type: application/json
 **Response:**
 ```json
 {
-  "churn_probability": 0.32,
-  "churn": "No"
+  "churn_probability": 0.6636,
+  "churn": "Yes"
 }
 ```
 

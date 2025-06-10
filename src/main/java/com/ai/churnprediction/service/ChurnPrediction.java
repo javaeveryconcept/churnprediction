@@ -4,6 +4,7 @@ import com.ai.churnprediction.util.AiUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.datavec.api.transform.TransformProcess;
 import org.datavec.api.transform.schema.Schema;
 import org.datavec.api.writable.Text;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class ChurnPrediction {
     private MultiLayerNetwork model;
     private TransformProcess transformProcess;
@@ -35,22 +37,22 @@ public class ChurnPrediction {
     public void init() throws Exception {
         // Load full dataset for UI
         fullData = AiUtil.loadCsvData();
-
+        //
         // Load trained model
         model = ModelSerializer.restoreMultiLayerNetwork(new File("churn-model.zip"));
-        System.out.println("Model loaded successfully! " + model.summary());
+        log.info("Model loaded successfully! {}", model.summary());
         // Load TransformProcess from JSON
         String json = Files.readString(new File("transformProcess.json").toPath());
         transformProcess = TransformProcess.fromJson(json);
 
         // Save schema for mapping incoming JSON
         inputSchema = transformProcess.getInitialSchema();
-        System.out.println("TransformProcess loaded successfully! " + transformProcess.getFinalSchema());
+        log.info("TransformProcess loaded successfully! {}", transformProcess.getFinalSchema());
     }
 
     public double predictChurn(Map<String, Object> payload) {
         if (payload.get("TotalCharges") == null || payload.get("TotalCharges").toString().trim().isEmpty()) {
-            payload.put("TotalCharges", Double.valueOf(0.0));
+            payload.put("TotalCharges", 0.0);
         }
 
         // Step 1: Convert JSON payload into List<Writable> using schema
@@ -92,7 +94,7 @@ public class ChurnPrediction {
 
     private double[] convertRecordToFeatures(List<Writable> record) {
         List<Writable> transformed = transformProcess.execute(record);
-        // Remove churn if it's a label or not needed for prediction
+        // Remove `churn` if it's a label or not needed for prediction
         transformed.removeLast();
 
         //Convert List<Writable> to INDArray
